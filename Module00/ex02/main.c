@@ -6,11 +6,14 @@
 /*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/27 15:15:16 by ebonutto          #+#    #+#             */
-/*   Updated: 2025/10/27 16:17:04 by ebonutto         ###   ########.fr       */
+/*   Updated: 2025/10/27 17:51:31 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <avr/io.h>
+#include <util/delay.h>
+
+#define DEBOUNCE_DELAY 20 // Delay (ms) to filter button bouncing
 
 int main( void )
 {
@@ -23,13 +26,23 @@ int main( void )
 	{
 		if ( ! ( PIND & ( 1 << PD2 ) ) ) // Button pressed -> PIND bit = 0
 		{
-			PORTB |= ( 1 << PB0 );
+			_delay_ms( DEBOUNCE_DELAY ); // Delay after release to avoid bouncing
+			
+			if ( ! ( PIND & ( 1 << PD2 ) ) ) // Check if it's not the button boucing
+			{
+				PORTB |= ( 1 << PB0 );
+			}
 		}
-		else
+		else  // Button not pressed -> PIND bit = 1
 		{
-			PORTB &= ~ ( 1 << PB0 ); // Button not pressed -> PIND bit = 1
+			_delay_ms( DEBOUNCE_DELAY ); // Delay after release to avoid bouncing
+
+			if ( ( PIND & ( 1 << PD2 ) ) ) // Check if it's not the button boucing
+			{
+				PORTB &= ~ ( 1 << PB0 );
+			}
 		}
 	}
 
-	return ( 0 );	
+	return ( 0 );
 }
