@@ -6,7 +6,7 @@
 #    By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/27 14:18:07 by ebonutto          #+#    #+#              #
-#    Updated: 2025/10/27 15:45:02 by ebonutto         ###   ########.fr        #
+#    Updated: 2025/10/27 18:05:06 by ebonutto         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@
 MCU = atmega328p
 
 # The clock frequency used by the MCU
-F_CPU = 8000000UL
+F_CPU = 1UL
 # BAUD = 115200UL
 
 # The main output file name (without extension)
