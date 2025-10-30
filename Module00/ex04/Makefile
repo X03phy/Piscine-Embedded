@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+         #
+#    By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/27 14:18:18 by ebonutto          #+#    #+#              #
-#    Updated: 2025/10/27 15:46:28 by ebonutto         ###   ########.fr        #
+#    Updated: 2025/10/30 15:23:16 by x03phy           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@
 MCU = atmega328p
 
 # The clock frequency used by the MCU
-F_CPU = 8000000UL
+F_CPU = 16000000UL
 
 # BAUD = 115200UL
 
