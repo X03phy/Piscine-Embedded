@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/30 17:48:56 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/01 18:02:06 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/03 11:46:44 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ static void uart_printstr( const char* str )
 
 static void timer1_init( void )
 {
+	cli();
 	TCCR1A = 0; // Normal mode
 	TCCR1B = ( 1 << WGM12 ) | ( 1 << CS12 ) | ( 1 << CS10 ); // CTC mode, prescaler 1024
 	OCR1A = 31250;

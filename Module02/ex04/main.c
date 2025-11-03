@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/30 17:48:56 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/02 18:19:17 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/03 11:51:57 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ static int ft_strcmp( const char *s1, const char *s2 )
 
 static void uart_init( void )
 {	
+	cli();
 	// Configure USART Baud Rate Registers
 	UBRR0H = BAUD_PRESCALE >> 8; 
 	UBRR0L = BAUD_PRESCALE;
@@ -58,6 +59,7 @@ static void uart_init( void )
 	UCSR0A = ( 1 << U2X0 ); // Double Transmission Speed
 	UCSR0B = ( 1 << TXEN0 ) | ( 1 << RXEN0 ) | ( 1 << RXCIE0 ); // TX, RX and RX interrupt enable
 	UCSR0C = ( 1 << UCSZ00 ) | ( 1 << UCSZ01 ); // For character size (8 bits)
+	sei();
 }
 
 static char uart_rx( void )
@@ -169,9 +171,8 @@ ISR( USART_RX_vect )
 
 int main( void )
 {
-	uart_init();
 	led_init();
-	sei();
+	uart_init();
 
 	uart_printstr("Enter your login:\r\n\tusername: ");
 
