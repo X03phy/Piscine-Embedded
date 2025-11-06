@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 17:19:58 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/05 17:35:56 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/06 12:52:25 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ ISR( INT0_vect )
 		EICRA &= ~( 1 << ISC00 );
 		PORTB ^= ( 1 << PB0 );
 	}
-	else  // Fallign edge
+	else  // Falling edge
 	{
 		button_state = 1;
 		EICRA |= ( 1 << ISC00 );
