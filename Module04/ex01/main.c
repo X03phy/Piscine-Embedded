@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 17:40:10 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/05 19:21:25 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/07 11:27:07 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,20 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
+
+volatile uint8_t brightness = 0;
+volatile int8_t direction = 1;
 
 ISR( TIMER0_COMPA_vect )
 {
-	// Met à jour la valeur du PWM
-	pwm_value += direction;
+	brightness += direction;
 
-	// Inversion de direction
-	if (pwm_value == MAX_PWM || pwm_value == 0)
+	// Switch direction
+	if ( brightness == 255 || brightness == 0 )
 		direction = -direction;
 
-	// Met à jour le rapport cyclique du Timer1
-	OCR1A = pwm_value;
+	OCR1A = brightness;
 }
 
 int main( void )
@@ -37,8 +39,13 @@ int main( void )
 	TCCR1B = ( 1 << WGM12 ) | ( 1 << CS10 );    // Fast PWM, prescaler = 1
 	OCR1A = 0;                                  // initial PWM at 
 
-	TCCR0A = 
-	sei(); // interruptions globales
+	TCCR0A = ( 1 << WGM01 );  // CTC mode
+	TCCR0B = ( 1 << CS02 ); // prescaler = 256
+
+	OCR0A = 124;
+	TIMSK0 = ( 1 << OCIE0A ); // Activate interrupt
+	
+	sei();
 
 	while ( 1 );
 
