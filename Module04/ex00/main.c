@@ -3,58 +3,57 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
+/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 17:19:58 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/06 12:52:25 by ebonutto         ###   ########.fr       */
+/*   Updated: 2025/11/08 21:01:34 by x03phy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// https://wikigeii.iut-troyes.univ-reims.fr/index.php?title=Cours:Atmega328p
-
-#include <avr/io.h>
-#include <util/delay.h>
+#include "led.h"
+#include "button.h"
+#include "interrupt.h"
+#include "isr.h"
 #include <avr/interrupt.h>
 
-#define DEBOUNCE_DELAY 20
+volatile int unpressed = 1;
 
-volatile uint8_t button_state = 0;  // 0 = relâché, 1 = appuyé
-
-ISR( INT0_vect )
+ISR_EXTERNAL_0
 {
-	EIMSK &= ~( 1 << INT0 );  // Deactivate
-	
-	_delay_ms( DEBOUNCE_DELAY );
+	DISABLE_INT0();
 
-	if ( EICRA & ( 1 << ISC00 ) )  // Rising edge
+	if ( IS_INT0_FALLING_EDGE() )
 	{
-		button_state = 0;
-		EICRA &= ~( 1 << ISC00 );
-		PORTB ^= ( 1 << PB0 );
+		LED_TOGGLE( LED_D1_MASK );
+		SET_INT0_RISING_EDGE();
 	}
-	else  // Falling edge
+	else
 	{
-		button_state = 1;
-		EICRA |= ( 1 << ISC00 );
+		unpressed = 0;
 	}
 
-	_delay_ms( DEBOUNCE_DELAY );
-	
-	EIMSK |= ( 1 << INT0 );  // Reactivate
+	ENABLE_INT0();
 }
 
-int main(void)
+int main( void )
 {
-	DDRB |= ( 1 << PB0 );
-	DDRD &= ~( 1 << PD2 );
-	PORTD |= ( 1 << PD2 );
-	
+	init_led_D1();
+	init_button_sw1();
+
 	cli();
-	EICRA = ( 1 << ISC01 );  // Falling edge
-	EIMSK = ( 1 << INT0 );
+	SET_INT0_FALLING_EDGE();
+	ENABLE_INT0();
 	sei();
-	
-	while ( 1 );
-	
+
+	while ( 1 )
+	{
+		debounce_button();
+		if ( !unpressed )
+		{
+			unpressed = 1;
+			SET_INT0_FALLING_EDGE();
+		}
+	}
+
 	return ( 0 );
 }

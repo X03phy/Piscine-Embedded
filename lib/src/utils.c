@@ -1,36 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/03 09:58:24 by ebonutto          #+#    #+#             */
-/*   Updated: 2025/11/08 18:30:09 by x03phy           ###   ########.fr       */
+/*   Created: 2025/11/08 13:08:26 by x03phy            #+#    #+#             */
+/*   Updated: 2025/11/08 13:10:31 by x03phy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// https://forum.arduino.cc/t/pulsing-rgb-led-understanding-ocm-and-phase-correct-pwm/1212393
-
 #include "utils.h"
-#include "led.h"
-#include <util/delay.h>
 
-int main( void )
+int ft_strcmp( const char *s1, const char *s2 )
 {
-	uint8_t i;
-	uint8_t colors[] = {D5_LED_RED, D5_LED_GREEN, D5_LED_BLUE};
+	int i;
 
-	init_D5_led_RGB();
+	if ( !s1 || !s2 )
+		return ( 0 );
+
+	i = 0;
+	while ( s1[i] && s1[i] == s2[i] )
+		i += 1;
 	
-	while ( 1 )
-	{
-		for ( i = 0; i < _SIZE( colors ); i += 1 )
-		{
-			set_D5_led_color( colors[i] );
-			_delay_ms( 1000 );
-		}
-	}
+	return ( s1[i] - s2[i] );
+}
 
-	return ( 0 );
+int ft_strlen( const char *s )
+{
+	int i;
+
+	i = 0;
+	while ( s[i] )
+		i += 1;
+
+	return ( i );
 }
