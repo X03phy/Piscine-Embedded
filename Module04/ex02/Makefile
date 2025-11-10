@@ -6,7 +6,7 @@
 #    By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/27 14:18:07 by ebonutto          #+#    #+#              #
-#    Updated: 2025/11/07 11:26:23 by ebonutto         ###   ########.fr        #
+#    Updated: 2025/11/10 09:09:24 by ebonutto         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -68,7 +68,7 @@ all: hex flash
 # -O ihex : Output format = Intel HEX (standard format to flash microcontrollers)
 hex:
 	@echo "$(GRN)Compiling project...$(NC)"
-	$(CC) $(TARGET_ARCH) $(TARGET_FREQ) $(TARGET_BAUD) -o $(TARGET).bin $(TARGET).c
+	$(CC) -Os $(TARGET_ARCH) $(TARGET_FREQ) $(TARGET_BAUD) -o $(TARGET).bin $(TARGET).c
 	$(OBJCOPY) -O ihex $(TARGET).bin $(TARGET).hex
 	@echo "$(GRN)HEX file generated: $(TARGET).hex$(NC)"
 
