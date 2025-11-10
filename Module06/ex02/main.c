@@ -6,7 +6,7 @@
 /*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/10 09:24:20 by ebonutto          #+#    #+#             */
-/*   Updated: 2025/11/10 18:24:32 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/10 18:49:40 by x03phy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,24 +99,37 @@ static void i2c_write( unsigned char data )
 	while ( ! ( TWCR & ( 1 << TWINT ) ) );
 }
 
-static void i2c_read( void )
+static uint8_t i2c_read_ack( void )
 {
 	TWCR = ( 1 << TWINT ) | ( 1 << TWEN ) | ( 1 << TWEA ); // Activate Read + ACK
 	while ( ! ( TWCR & ( 1 << TWINT ) ) );
-	print_hex_value( TWDR );
+	return ( TWDR );
 }
 
-static void i2c_read_nack( void )
+static uint8_t i2c_read_nack( void )
 {
 	TWCR = ( 1 << TWINT ) | ( 1 << TWEN ); // Activate Read
 	while ( ! ( TWCR & ( 1 << TWINT ) ) );
-	print_hex_value( TWDR );
+	return ( TWDR );
 }
 
 int main( void )
 {
+	int i;
+	uint8_t data[7];
+	uint32_t raw_humidity, raw_temperature;
+	float humidity, temperature;
+	float average[4]; // Humidity and Temperature
+	char buffer[10];
+
+	// Set to 0 for the first 2 measures.
+	average[0] = '\0'; average[1] = '\0';
+	average[2] = '\0'; average[3] = '\0';
+
 	uart_init();
 	i2c_init();
+
+	uart_printstr( "Waiting...\r\n" );
 
 	while ( 1 )
 	{
@@ -132,22 +145,38 @@ int main( void )
 		// read temperature and humidity data
 		i2c_start();
 		i2c_write( ( AHT20_ADDR << 1 ) | I2C_READ );
-		i2c_read(); // state
-		uart_tx( ' ' );
-		i2c_read(); // humidity
-		uart_tx( ' ' );
-		i2c_read(); // humidity
-		uart_tx( ' ' );
-		i2c_read(); // humidity and temperature
-		uart_tx( ' ' );
-		i2c_read(); // temperature
-		uart_tx( ' ' );
-		i2c_read(); // temperature
-		uart_tx( ' ' );
-		i2c_read_nack(); // CRC data
+		for ( i = 0; i < 6; i += 1 )
+			data[i] = i2c_read_ack();
+		data[6] = i2c_read_nack();
 		i2c_stop();
+		
+		// Extract data
+		raw_humidity = ( ( uint32_t ) ( data[1] ) << 12 ) |
+					( ( uint32_t ) ( data[2] ) << 4 ) |
+					( ( uint32_t ) ( data[3] >> 4 ) & 0x0F );
+		humidity = ( ( float ) raw_humidity / 1048576.0f ) * 100.0f; // 2^20 = 1048576
 
-		uart_printstr( "\r\n" );
+		raw_temperature = ( ( ( uint32_t ) ( data[3] & 0x0F ) ) << 16 ) |
+						( ( uint32_t ) ( data[4] ) << 8 ) |
+						( ( uint32_t ) ( data[5] ) );
+		temperature = ((float)raw_temperature / 1048576.0f) * 200.0f - 50.0f; // 2^20 = 1048576
+
+		if ( average[0] != '\0' && average[1] != '\0' )
+		{
+			humidity = ( average[0] + average[1] + humidity ) / 3;
+			temperature = ( average[2] + average[3] + temperature ) / 3;
+			uart_printstr( "Temperature: " );
+			uart_printstr( dtostrf( temperature, 2, 1, buffer ) );
+			uart_printstr( " C, Humidity: " );
+			uart_printstr( dtostrf( humidity, 4, 1, buffer ) );
+			uart_printstr( " %\r\n" );			
+		}
+
+		average[0] = average[1];
+		average[1] = humidity;
+
+		average[2] = average[3];
+		average[3] = temperature;
 
 		_delay_ms( 2000 ); // It is recommended to measure data every 2 seconds
 	}

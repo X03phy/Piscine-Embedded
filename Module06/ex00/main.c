@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
+/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/10 09:24:20 by ebonutto          #+#    #+#             */
-/*   Updated: 2025/11/10 12:18:02 by ebonutto         ###   ########.fr       */
+/*   Updated: 2025/11/10 18:00:35 by x03phy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 #define AHT20_ADDR 0x38 // AHT20 sensor adress
 #define I2C_WRITE 0     // Where to write
 
-volatile uint8_t data = 0xAC;  // Test
 volatile uint8_t i2c_status;   // Store I2C status
 
 /*  UART  */
@@ -53,57 +52,54 @@ static void uart_printstr( const char* str )
 		uart_tx( *str++ );
 }
 
-static void uart_printhex(uint8_t val)
+static void print_hex_value( char c )
 {
 	char hex[3];
 	const char hexchars[] = "0123456789ABCDEF";
 
-	hex[0] = hexchars[( val >> 4 ) & 0x0F];
-	hex[1] = hexchars[val & 0x0F];
+	hex[0] = hexchars[( c >> 4 ) & 0x0F];
+	hex[1] = hexchars[c & 0x0F];
 	hex[2] = '\0';
 	uart_printstr( hex );
 }
 
 /*  I2C  */
-static void i2c_init()
+static void i2c_init( void )
 {
 	TWSR = 0;                                // Default clock
 	TWBR=( ( F_CPU / SCL_CLOCK ) - 16 ) / 2; // I2C clock frequency
 	TWCR = ( 1 << TWEN );                    // Material I2C activation
 }
 
-void i2c_start( void )
+// Last transmission state
+static uint8_t i2c_statut( void )
+{
+	return ( TWSR & 0xF8 );
+}
+
+static void i2c_start( void )
 {
 	// Start
 	TWCR = ( 1 << TWINT ) | ( 1 << TWSTA ) | ( 1 << TWEN );
 	while( ( TWCR & ( 1 << TWINT ) ) == 0 );  // wating till end of send
 
-	i2c_status = TWSR & 0xF8;
-	uart_printstr( "START status: 0x" );
-	uart_printhex( i2c_status );
+	i2c_status = i2c_statut();
+	uart_printstr( "Start status: 0x" );
+	print_hex_value( i2c_status );
 	uart_printstr( "\r\n" );
 
-	// Send adress + write
+	// Send address + write
 	TWDR = ( ( AHT20_ADDR << 1 ) | I2C_WRITE );
 	TWCR = ( 1 << TWINT ) | ( 1 << TWEN );
 	while ( ! ( TWCR & ( 1 << TWINT ) ) );
 
-	i2c_status = TWSR & 0xF8;
-	uart_printstr( "ADDR status: 0x" );
-	uart_printhex( i2c_status );
-	uart_printstr( "\r\n" );
-
-	// Send data
-	TWDR = data;
-	TWCR = ( 1 << TWINT ) | ( 1 << TWEN );
-	while ( ! ( TWCR & ( 1 << TWINT ) ) );
-	i2c_status = TWSR & 0xF8;
-	uart_printstr( "DATA status: 0x" );
-	uart_printhex( i2c_status );
+	i2c_status = i2c_statut();
+	uart_printstr( "Addr status: 0x" );
+	print_hex_value( i2c_status );
 	uart_printstr( "\r\n" );
 }
 
-void i2c_stop( void )
+static void i2c_stop( void )
 {
 	TWCR = ( 1 << TWINT ) | ( 1 << TWSTO ) | ( 1 << TWEN );
 }
