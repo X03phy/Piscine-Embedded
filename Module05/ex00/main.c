@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 23:04:20 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/05 16:41:23 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/10 09:16:10 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ static void adc_init( void )
 	// Enable ADC and set prescaler to 128 (for 16MHz -> 125kHz ADC clock)
 	ADCSRA = ( 1 << ADEN ) | ( 1 << ADPS2 ) | ( 1 << ADPS1 ) | ( 1 << ADPS0 );
 
-		// Configure PC0 as input
+	// Configure PC0 as input
 	DDRC &= ~ ( 1 << PC0 );
 	// Disable digital input buffer
 	DIDR0 = ( 1 << ADC0D );
