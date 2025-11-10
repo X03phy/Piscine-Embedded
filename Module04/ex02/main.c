@@ -6,7 +6,7 @@
 /*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 17:19:58 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/10 09:07:55 by ebonutto         ###   ########.fr       */
+/*   Updated: 2025/11/10 09:12:16 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
-volatile int sw1_unpressed = 1;
-volatile int sw2_unpressed = 1;
 volatile uint8_t counter = 0;
 
 static void display_counter( void )
