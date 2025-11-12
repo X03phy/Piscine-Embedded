@@ -5,6 +5,7 @@
 		"string_view": "c",
 		"ranges": "c",
 		"span": "c",
-		"compare": "c"
+		"compare": "c",
+		"random": "c"
 	}
 }

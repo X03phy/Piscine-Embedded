@@ -6,7 +6,7 @@
 /*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 14:15:29 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/12 11:12:17 by ebonutto         ###   ########.fr       */
+/*   Updated: 2025/11/12 12:27:15 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ void print_eeprom( uint16_t highlight_addr )
 	while ( eaddr <= E2END )
 	{
 		// address
-		for ( i = 0; i < 7; i++ )
+		for ( i = 0; i < 8; i++ )
 			uart_tx( "0123456789ABCDEF"[( eaddr >> ( 4 * ( 6 - i ) ) ) & 0x0F] );
 
 		for ( j = 0; j < 8 && eaddr <= E2END; j++ )

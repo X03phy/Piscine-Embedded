@@ -6,7 +6,7 @@
 /*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 14:15:29 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/12 11:13:06 by ebonutto         ###   ########.fr       */
+/*   Updated: 2025/11/12 12:27:23 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ int main( void )
 	while ( addr <= E2END )  // E2END = last EEPROM address
 	{
 		// Print address
-		for ( i = 0; i < 7; i += 1 )
+		for ( i = 0; i < 8; i += 1 )
 			buf[i] = "0123456789ABCDEF"[( addr >> ( 4 * ( 6 - i ) ) ) & 0x0F];
 		buf[7] = '\0';
 		uart_printstr( buf );
