@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/10 09:24:20 by ebonutto          #+#    #+#             */
-/*   Updated: 2025/11/10 18:24:32 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/12 12:17:37 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,9 +87,10 @@ static void i2c_start( void )
 	while( ( TWCR & ( 1 << TWINT ) ) == 0 );  // wating till end of send
 }
 
-void i2c_stop( void )
+static void i2c_stop( void )
 {
 	TWCR = ( 1 << TWINT ) | ( 1 << TWSTO ) | ( 1 << TWEN );
+	while ( TWCR & ( 1 << TWSTO ) );
 }
 
 static void i2c_write( unsigned char data )

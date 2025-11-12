@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/10 09:24:20 by ebonutto          #+#    #+#             */
-/*   Updated: 2025/11/11 15:17:54 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/12 12:17:26 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <util/twi.h>
+#include <stdlib.h>
 
 #define SCL_CLOCK 100000UL  // 100 kHz
 
@@ -87,9 +88,10 @@ static void i2c_start( void )
 	while( ( TWCR & ( 1 << TWINT ) ) == 0 );  // wating till end of send
 }
 
-void i2c_stop( void )
+static void i2c_stop( void )
 {
 	TWCR = ( 1 << TWINT ) | ( 1 << TWSTO ) | ( 1 << TWEN );
+	while ( TWCR & ( 1 << TWSTO ) );
 }
 
 static void i2c_write( unsigned char data )
@@ -118,8 +120,8 @@ int main( void )
 	int i;
 	uint8_t data[7];
 	uint32_t raw_humidity, raw_temperature;
-	float humidity, temperature;
-	float average[4]; // Humidity and Temperature
+	double humidity, temperature;
+	double average[4]; // Humidity and Temperature
 	char buffer[10];
 
 	// Set to 0 for the first 2 measures.
@@ -159,7 +161,7 @@ int main( void )
 		raw_temperature = ( ( ( uint32_t ) ( data[3] & 0x0F ) ) << 16 ) |
 						( ( uint32_t ) ( data[4] ) << 8 ) |
 						( ( uint32_t ) ( data[5] ) );
-		temperature = ((float)raw_temperature / 1048576.0f) * 200.0f - 50.0f; // 2^20 = 1048576
+		temperature = ( ( float ) raw_temperature / 1048576.0f ) * 200.0f - 50.0f; // 2^20 = 1048576
 
 		if ( average[0] != '\0' && average[1] != '\0' )
 		{
@@ -168,7 +170,7 @@ int main( void )
 			uart_printstr( "Temperature: " );
 			uart_printstr( dtostrf( temperature, 2, 1, buffer ) );
 			uart_printstr( " C, Humidity: " );
-			uart_printstr( dtostrf( humidity, 4, 1, buffer ) );
+			uart_printstr( dtostrf( humidity, 2, 1, buffer ) );
 			uart_printstr( " %\r\n" );			
 		}
 

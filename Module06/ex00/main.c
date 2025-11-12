@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/10 09:24:20 by ebonutto          #+#    #+#             */
-/*   Updated: 2025/11/10 18:00:35 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/12 12:17:44 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,12 +102,16 @@ static void i2c_start( void )
 static void i2c_stop( void )
 {
 	TWCR = ( 1 << TWINT ) | ( 1 << TWSTO ) | ( 1 << TWEN );
+	while ( TWCR & ( 1 << TWSTO ) );
 }
 
 int main( void )
 {
 	uart_init();
 	i2c_init();
+	i2c_start();
+	i2c_stop();
+
 	i2c_start();
 	i2c_stop();
 
