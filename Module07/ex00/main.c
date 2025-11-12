@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 14:15:29 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/11 15:40:22 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/12 11:13:06 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,8 @@ int main( void )
 				byte_high = 0x00;
 			}
 
-			print_hex_value( byte_high );
             print_hex_value( byte_low );
+			print_hex_value( byte_high );
 		}
 
 		uart_printstr( "\r\n" );

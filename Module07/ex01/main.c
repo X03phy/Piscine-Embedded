@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 14:15:29 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/11 16:38:32 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/12 11:12:17 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,40 +101,45 @@ uint8_t extract_byte( char *buffer )
 	return ( byte );
 }
 
-void print_eeprom(uint16_t highlight_addr)
+void print_eeprom( uint16_t highlight_addr )
 {
-    uint16_t eaddr = 0;
-    uint8_t byte_low, byte_high;
+	int i;
+	int j;
+	uint16_t eaddr = 0;
+	uint8_t byte_low, byte_high;
+	uint16_t laddr, haddr;
 
-    while (eaddr <= 100)
-    {
-        // adresse
-        for (int i = 0; i < 7; i++)
-            uart_tx("0123456789ABCDEF"[(eaddr >> (4*(6-i))) & 0x0F]);
-        uart_tx(' ');
+	while ( eaddr <= E2END )
+	{
+		// address
+		for ( i = 0; i < 7; i++ )
+			uart_tx( "0123456789ABCDEF"[( eaddr >> ( 4 * ( 6 - i ) ) ) & 0x0F] );
 
-        for (int g = 0; g < 8 && eaddr <= E2END; g++)
-        {
-            uart_tx(' ');
+		for ( j = 0; j < 8 && eaddr <= E2END; j++ )
+		{
+			uart_tx(' ');
 
-            byte_low = eeprom_read_byte((uint8_t *)eaddr++);
-            if (eaddr <= E2END)
-                byte_high = eeprom_read_byte((uint8_t *)eaddr++);
-            else
-                byte_high = 0x00;
+			laddr = eaddr;
+			byte_low = eeprom_read_byte( ( uint8_t * ) eaddr++ );
+			haddr = eaddr;
+			if ( eaddr <= E2END )
+				byte_high = eeprom_read_byte( ( uint8_t * ) eaddr++ );
+			else
+				byte_high = 0x00;
 
-            // byte_low
-            if (eaddr-2 == highlight_addr) uart_printstr("\033[31m");
-            print_hex_value(byte_low);
-            if (eaddr-2 == highlight_addr) uart_printstr("\033[0m");
+			// byte_low
+			if ( laddr == highlight_addr ) uart_printstr( "\033[31m" );
+			print_hex_value( byte_low );
+			if ( laddr == highlight_addr ) uart_printstr( "\033[0m" );
 
-            // byte_high
-            if (eaddr-1 == highlight_addr) uart_printstr("\033[31m");
-            print_hex_value(byte_high);
-            if (eaddr-1 == highlight_addr) uart_printstr("\033[0m");
-        }
-        uart_printstr("\r\n");
-    }
+			// byte_high
+			if ( haddr == highlight_addr ) uart_printstr( "\033[31m" );
+			print_hex_value( byte_high );
+			if ( haddr == highlight_addr ) uart_printstr( "\033[0m" );
+
+		}
+		uart_printstr( "\r\n" );
+	}
 }
 
 int parse_input( char *buffer, uint16_t *addr, uint8_t *byte )
@@ -182,7 +187,7 @@ int main( void )
 	uint16_t addr;
 	uint8_t byte;
 
-	uart_printstr( "Enter: " );
+	uart_printstr( "Enter adress + byte : " );
 
 	idx = 0;
 	while ( 1 )
@@ -214,7 +219,7 @@ int main( void )
 			}
 			
 			idx = 0;
-			uart_printstr( "\r\nEnter: " );
+			uart_printstr( "\r\nEnter adress + byte : " );
 		}
 
 		else
