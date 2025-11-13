@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 14:15:29 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/13 00:05:34 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/13 09:17:17 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,7 +196,7 @@ static void get_line( char *buffer )
 
 		else
 		{
-			if ( idx < 42  )
+			if ( idx < 44  )
 			{
 				uart_tx( c );
 				buffer[idx++] = c;
@@ -305,18 +305,12 @@ static int parse_value( char *buffer, char *value )
 	return ( 1 );
 }
 
-static void handle_read( char *buffer )
+static int eeprom_find_value_addr_by_key( char *buffer, char *key )
 {
-	uint16_t eaddr = 0;
-	uint8_t c;
-	uint8_t key[33];
+	unsigned char c;
+	int i;
+	int eaddr = 0;
 	uint8_t stored_key[33];
-	int i = 0;
-
-	if ( parse_key( buffer, key ) == 0 )
-	{
-		return ;
-	}
 
 	while ( eaddr <= E2END )
 	{
@@ -325,48 +319,95 @@ static void handle_read( char *buffer )
 		{
 			eaddr++; // Skip MAGIC_NUMBER_START_VALUE
 
-			while ( ( c = eeprom_read_byte( ( uint8_t * ) eaddr ) ) != MAGIC_NUMBER_MID_VALUE && i < 32 )
+			i = 0;
+			while ( ( c = eeprom_read_byte( ( uint8_t * ) eaddr ) ) != MAGIC_NUMBER_MID_VALUE && i < 32 ) // Suppose it is correct
 			{
 				stored_key[i] = c;
 				eaddr += 1;
 				i += 1;
 			}
 			stored_key[i] = '\0';
-			// uart_printstr( "\r\nstored_key: " );
+			// uart_printstr( "\r\nstored_key : " );
 			// uart_printstr( stored_key );
 			// uart_printstr( "\r\n" );
 
+			if ( c != MAGIC_NUMBER_MID_VALUE )
+			{
+				uart_printstr("\r\nEEPROM corrupted\r\n");
+				return -1;
+			}
+	
+			eaddr++; // For MAGIC_NUMBER_MID
 
 			if ( ft_strncmp( stored_key, key, 32 ) == 0 )
 			{
-				while ( eeprom_read_byte( ( uint8_t * ) eaddr ) != MAGIC_NUMBER_MID_VALUE )
-					eaddr++;
-
-				eaddr++; // For MAGIC_NUMBER_MID
-
-				uart_printstr( "\r\n" );
-
-				while ( ( c = eeprom_read_byte( ( uint8_t * ) eaddr ) ) != MAGIC_NUMBER_END_VALUE )
-				{
-					uart_tx( c );
-					eaddr++;
-				}
-
-				uart_printstr( "\r\n" );
-
-				return ;
+				return ( eaddr );
 			}
 		}
 
-		eaddr += 1;
+		eaddr++;
 	}
 
-	uart_printstr( "\r\nempty\r\n" );
+	return ( -1 );
+}
+
+static void handle_read( char *buffer )
+{
+	int eaddr;
+	uint8_t c;
+	uint8_t key[33];
+
+	if ( parse_key( buffer, key ) == 0 )
+	{
+		return ;
+	}
+
+	eaddr = eeprom_find_value_addr_by_key( buffer, key );
+	if ( eaddr == -1 )
+	{
+		uart_printstr( "\r\nempty\r\n" );
+		return ;
+	}
+
+	uart_printstr( "\r\n" );
+	while ( ( c = eeprom_read_byte( ( uint8_t * ) eaddr ) ) != MAGIC_NUMBER_END_VALUE )
+	{
+		uart_tx( c );
+		eaddr++;
+	}
+	uart_printstr( "\r\n" );
+}
+
+static int eeprom_find_free_space( char *buffer, int n )
+{
+	int count = 0;
+	int eaddr = 0;
+	
+	while ( eaddr + count <= E2END )
+	{
+		if ( eeprom_read_byte( ( uint8_t * ) eaddr ) == ( uint8_t ) MAGIC_NUMBER_START_VALUE )
+		{
+			eaddr += count;
+			while ( eeprom_read_byte( ( uint8_t * ) eaddr ) != ( uint8_t ) MAGIC_NUMBER_END_VALUE )
+				eaddr++;
+			eaddr++; // Skip MAGIC_NUMBER_END
+			count = 0;
+		}
+		else
+		{
+			count++;
+			if ( count >= n )
+				return ( eaddr );
+		}
+	}
+
+	return ( -1 );
 }
 
 static void handle_write( char *buffer )
 {
-	uint16_t eaddr = 0;
+	int n;
+	uint16_t eaddr;
 	unsigned char key[33];
 	unsigned char value[33];
 
@@ -381,9 +422,25 @@ static void handle_write( char *buffer )
 		return ;
 	}
 
+	eaddr = eeprom_find_value_addr_by_key( buffer, key );
+
+	if ( eaddr != -1 )
+	{
+		uart_printstr( "\r\nKey already exists!\r\n" );
+		return ;
+	}
+
+	n = ft_strlen( key ) + ft_strlen( value );
+
+	eaddr = eeprom_find_free_space( buffer, n + 3 );
+	if ( eaddr == -1 )
+	{
+		uart_printstr( "\r\nNo space left in eeprom!\r\n" );
+		return ;
+	}
+
 	eeprom_write_byte( ( uint8_t * ) eaddr, MAGIC_NUMBER_START_VALUE );
 	eaddr += 1;
-
 	for ( int i = 0; key[i]; i++ )
 	{
 		eeprom_write_byte( ( uint8_t * ) eaddr, key[i] );
@@ -402,6 +459,35 @@ static void handle_write( char *buffer )
 	uart_printstr( "\r\n" );
 }
 
+static void handle_forget( char *buffer )
+{
+	int eaddr;
+	uint8_t key[33];
+
+	if ( parse_key( buffer, key ) == 0 )
+	{
+		return ;
+	}
+
+	eaddr = eeprom_find_value_addr_by_key( buffer, key );
+	if ( eaddr == -1 )
+	{
+		uart_printstr( "\r\nNot Found\r\n" );
+		return ;
+	}
+
+	eaddr = eaddr - 2 - ft_strlen( key );
+	if ( eaddr < 0 )
+		return ;
+
+	if ( eeprom_read_byte( ( uint8_t * ) eaddr ) == MAGIC_NUMBER_START_VALUE )
+	{
+		eeprom_write_byte( ( uint8_t * ) eaddr, 0xFF );
+	}
+
+	uart_printstr( "\r\n" );
+}
+
 static void print_eeprom( void )
 {
 	int i;
@@ -411,7 +497,7 @@ static void print_eeprom( void )
 	uint8_t buf[17];
 	uart_printstr( "\r\n" );
 
-	while ( eaddr <= 100 )
+	while ( eaddr <= E2END )
 	{
 		// address
 		for ( i = 0; i < 7; i++ )
@@ -457,7 +543,7 @@ int main( void )
 {
 	uart_init();
 
-	char buffer[42];
+	char buffer[44];
 
 	uint16_t addr;
 	uint8_t byte;
@@ -472,6 +558,8 @@ int main( void )
 			handle_write( buffer );
 		else if ( ft_strncmp( "PRINT", buffer, 6 ) == 0 )
 			print_eeprom();
+		else if ( ft_strncmp( "FORGET ", buffer, 7 ) == 0 )
+			handle_forget( buffer );
 		else
 			uart_printstr( "\r\nInvalid Command!\r\n" );
 	}
