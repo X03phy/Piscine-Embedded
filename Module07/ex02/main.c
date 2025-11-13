@@ -6,7 +6,7 @@
 /*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 14:15:29 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/13 09:17:17 by ebonutto         ###   ########.fr       */
+/*   Updated: 2025/11/13 11:41:54 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -378,7 +378,7 @@ static void handle_read( char *buffer )
 	uart_printstr( "\r\n" );
 }
 
-static int eeprom_find_free_space( char *buffer, int n )
+static int eeprom_find_free_space( int n )
 {
 	int count = 0;
 	int eaddr = 0;
@@ -395,9 +395,9 @@ static int eeprom_find_free_space( char *buffer, int n )
 		}
 		else
 		{
-			count++;
 			if ( count >= n )
 				return ( eaddr );
+			count++;
 		}
 	}
 
@@ -432,7 +432,7 @@ static void handle_write( char *buffer )
 
 	n = ft_strlen( key ) + ft_strlen( value );
 
-	eaddr = eeprom_find_free_space( buffer, n + 3 );
+	eaddr = eeprom_find_free_space( n + 3 );
 	if ( eaddr == -1 )
 	{
 		uart_printstr( "\r\nNo space left in eeprom!\r\n" );
@@ -526,7 +526,7 @@ static void print_eeprom( void )
 
 		uart_tx( ' ' );
 		uart_tx( '|' );
-		for ( i = 0; buf[i]; i++ )
+		for ( i = 0; i < 16; i++ )
 		{
 			if ( 32 <= buf[i] && buf[i] <= 126 )
 				uart_tx( buf[i] );

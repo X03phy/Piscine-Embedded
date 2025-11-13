@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: x03phy <x03phy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ebonutto <ebonutto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 19:39:13 by x03phy            #+#    #+#             */
-/*   Updated: 2025/11/11 21:52:11 by x03phy           ###   ########.fr       */
+/*   Updated: 2025/11/13 09:55:59 by ebonutto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 // 19 SPI – Serial Peripheral Interface
 
-void spi_init(void)
+void spi_init( void )
 {
 	// PB2 -> SS (Slave Select)
 	// PB3 -> MOSI (Master Out Slave In)
@@ -24,7 +24,7 @@ void spi_init(void)
 	// Table 19-1.
 	DDRB |= ( 1 << PB2 ) | ( 1 << PB3 ) | ( 1 << PB5 ); // SS, MOSI, SCK as output
 
-	
+
 	// SPE -> Activate SPI module
 	// MSTR -> Set as master
 	// SPR -> Frequency
@@ -32,7 +32,7 @@ void spi_init(void)
 }
 
 // Page 172
-void spi_send(uint8_t data)
+void spi_send( uint8_t data )
 {
 	/* Start transmission */
     SPDR = data;
